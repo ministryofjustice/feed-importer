@@ -1,0 +1,20 @@
+{
+  "name": "ministryofjustice/feed-fixer",
+  "description": "Parses a XML/JSON data feed into Wordpress" ,
+  "type": "wordpress-plugin",
+  "require": {
+    "composer/installers": "^1.0",
+    "aws/aws-sdk-php": "*"
+  },
+  "authors": [
+      {
+          "name": "Robert Lowe",
+          "email": "wordpress@digital.justice.gov.uk"
+      }
+  ],
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
+  }
+}
