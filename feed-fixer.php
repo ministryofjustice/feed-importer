@@ -66,7 +66,7 @@ function ff_import_feed()
 
         //$url = "https://justicejobs.tal.net/vx/mobile-0/appcentre-1/brand-2/candidate/jobboard/vacancy/3/feed";
         //$url = "https://justicejobs.tal.net/vx/mobile-0/appcentre-1/brand-2/candidate/jobboard/vacancy/3/feed/structured";
-        $tmp = get_temp_dir() . "jobs.xml";
+        //$tmp = get_temp_dir() . "jobs.xml";
 
         // get the uploads directory path
         $upload_dir = wp_get_upload_dir();
@@ -79,8 +79,8 @@ function ff_import_feed()
         ]);
 
         // let's check the data is xml
-        if (simplexml_load_file($tmp)) {
-            ff_upload_file_to_s3($tmp, 'feed-fixer/jobs.xml');
+        if (simplexml_load_file($file)) {
+            ff_upload_file_to_s3($file, 'feed-fixer/jobs.xml');
         
         }
     }
