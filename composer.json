@@ -1,5 +1,5 @@
 {
-  "name": "ministryofjustice/feed-fixer",
+  "name": "ministryofjustice/feed-importer",
   "description": "Parses a XML/JSON data feed into Wordpress" ,
   "type": "wordpress-plugin",
   "require": {
