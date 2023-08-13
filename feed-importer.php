@@ -44,8 +44,7 @@
 
 
         }
-       
-
+    
  }
 
 add_action('wp', 'fi_import_override', 1);
@@ -85,6 +84,8 @@ function fi_import(){
 
     if($data_array['objectType'] == 'job'){
         
+        $active_jobs = [];
+
         $count = 0;
         foreach($data_array['objects'] as $job){
 
@@ -95,9 +96,12 @@ function fi_import(){
             $closing_date = $job['closingDate'];
 
             if(empty($job_id) || empty($job_hash) || empty($job_url) || empty($closing_date)){
-                return;
+                continue;
             }
 
+            if($count >= 10){
+                break;
+            }
 
             $args = array(
                 'post_type' => 'job',
@@ -113,10 +117,6 @@ function fi_import(){
 
             $job_check = get_posts($args);
 
-            if($count > 2){
-                return;
-            }
-
             if (count($job_check) === 0) {
 
                 $job_post = array(
@@ -129,15 +129,23 @@ function fi_import(){
                 // Insert the post into the database
                 $post_id = wp_insert_post($job_post);
 
+                $active_jobs[] = $post_id;
+
                 update_post_meta($post_id, 'job_id', $job_id);
+
+                $count++;
             }
             else {
                 $post_id = $job_check[0]->ID;
 
+                $active_jobs[] = $post_id;
+
+                $count++;
+
                 $old_hash = get_post_meta($post_id, 'job_hash', true);
 
                 if($old_hash == $job_hash){
-                    return;
+                    continue;
                 }
 
                 $job_post = array(
@@ -146,6 +154,7 @@ function fi_import(){
                 );
 
                 wp_update_post( $my_post );
+                
             }
 
             if ($post_id) {
@@ -208,12 +217,12 @@ function fi_import(){
                     }
 
                 }
-
-                $count++;
             }
 
 
         }
+
+        fi_delete_old_jobs($active_jobs);
     }
 }
 
@@ -222,7 +231,7 @@ function fi_upload_file_to_s3($source_file, $dest_file){
     $s3client = new Aws\S3\S3Client(['region' => S3_UPLOADS_REGION, 'version' => 'latest']);
 
     $bucket_name = S3_UPLOADS_BUCKET;
-    $availableFeeds = [];
+
     $result = [];
     try {
         $result = $s3client->putObject([
@@ -236,17 +245,7 @@ function fi_upload_file_to_s3($source_file, $dest_file){
     } catch (Exception $exception) {
         echo "Failed to upload $dest_file with error: " . $exception->getMessage();
         exit("Please fix error with file upload before continuing.");
-    }
-
-    if(!empty($result) && array_key_exists('effectiveUri', $result['@metadata'])){
-        $availableFeeds[] = [
-            'name' => 'aaa',
-            'url' => $result['@metadata']['effectiveUri']
-        ];
-    }
-
-    var_dump($availableFeeds);
-    
+    }    
 }
 
 // Add the new meta box to side of editor page
@@ -317,4 +316,14 @@ function fi_get_feed_url(){
     }
 
     return $options['feed_url'];
+}
+
+function fi_delete_old_jobs($active_jobs){
+
+    if (count($active_jobs) > 0) {
+        $all_posts = get_posts(array('post_type' => 'job', 'post__not_in' => $active_jobs, 'numberposts' => -1));
+        foreach ($all_posts as $each_post) {
+            wp_delete_post($each_post->ID, true);
+        }
+    }
 }
