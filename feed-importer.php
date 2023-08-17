@@ -313,3 +313,29 @@ function fi_delete_old_jobs($active_jobs){
         }
     }
 }
+
+add_filter('cron_schedules', 'fi_add_cron_interval');
+function fi_add_cron_interval($schedules)
+{
+    $schedules['thirty_minutes'] = [
+        'interval' => 1800,
+        'display' => esc_html__('Every Thirty Minutes')
+    ];
+
+    $schedules['fifteen_minutes'] = [
+        'interval' => 900,
+        'display' => esc_html__('Every Fifteen Minutes')
+    ];
+
+    $schedules['five_minutes'] = [
+        'interval' => 300,
+        'display' => esc_html__('Every Five Minutes')
+    ];
+
+    return $schedules;
+}
+
+add_action('fi_import_feeds_cron_hook', 'fi_import');
+if (!wp_next_scheduled('save_xml_cron_hook')) {
+    wp_schedule_event(time(), 'fifteen_minutes', 'fi_import_feeds_cron_hook');
+}
