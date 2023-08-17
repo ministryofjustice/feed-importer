@@ -40,23 +40,12 @@ function fi_settings_init()
         'fi_settings_section',
         array( 'field_id'=> 'debug_mode', 'field_value' => 'debug')
     );
-
-    /*
-    add_settings_field(
-        'fi_feed_url',
-        __('Feed URL', 'wordpress'),
-        'fi_input_field_render',
-        'fi_plugin',
-        'fi_settings_section',
-        array( 'field_id'=> 'fi_feed_url')
-    );*/
-
 }
 
 function fi_section_intro()
 {
 
-    echo __('Please enter the URL of the feed you wish to import', 'wordpress');
+    echo __('Please select the feed you wish to import', 'wordpress');
 }
 
 function fi_input_field_render($args)
@@ -140,9 +129,35 @@ function fi_feed_url_field_render($args)
 
 function fi_plugin_settings()
 {
+    if(!empty($_POST) && array_key_exists('feed-importer-action', $_POST) && $_POST['feed-importer-action'] == "import" ){
+       $result = fi_import();
+       
+       if($result){
+        update_option('fi_last_imported_date', time())
+        ?>
+            <div id="manual-import-success" class="notice notice-success"> 
+<p><strong>Feed has been imported</strong></p></div>
+        <?php
+       }
+    }
+
+    $last_imported = "Not Found";
+
+    $last_import_date = get_option('fi_last_imported_date');
+
+    if(!empty($last_import_date)){
+        date_default_timezone_set('Europe/London');
+        $last_imported = date('j M Y H:i' , $last_import_date);
+    }
     ?>
     <h1>Feed Importer</h1>
-
+    <p><strong>Last Imported:</strong> <?php echo $last_imported; ?></p>
+    <form method='post'>
+        <input type="hidden" id="feed-importer-action" name="feed-importer-action" value="import"/>
+        <?php
+         submit_button('Manual Import', 'primary', 'import');
+        ?>
+    </form>
     <form action='options.php' method='post'>
         
         <?php
