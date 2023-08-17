@@ -78,6 +78,45 @@ function job_contract_type_custom_taxonomy() {
 }
 add_action( 'init', 'job_contract_type_custom_taxonomy', 0 );
 
+// Register Job Organisation Custom Taxonomy
+function job_organisation_custom_taxonomy() {
+
+	$labels = array(
+		'name'                       => 'Organisations',
+		'singular_name'              => 'Organisation',
+		'menu_name'                  => 'Organisations',
+		'all_items'                  => 'All Organisations',
+		'parent_item'                => 'Parent Organisation',
+		'parent_item_colon'          => 'Parent Organisation:',
+		'new_item_name'              => 'New Organisation Name',
+		'add_new_item'               => 'Add New Organisation',
+		'edit_item'                  => 'Edit Organisation',
+		'update_item'                => 'Update Organisation',
+		'view_item'                  => 'View Organisation',
+		'separate_items_with_commas' => 'Separate organisations with commas',
+		'add_or_remove_items'        => 'Add or remove organisations',
+		'choose_from_most_used'      => 'Choose from the most used',
+		'popular_items'              => 'Popular Organisations',
+		'search_items'               => 'Search TyOrganisationspes',
+		'not_found'                  => 'Not Found',
+		'no_terms'                   => 'No organisations',
+		'items_list'                 => 'Organisations list',
+		'items_list_navigation'      => 'Organisations list navigation',
+	);
+	$args = array(
+		'labels'                     => $labels,
+		'hierarchical'               => true,
+		'public'                     => true,
+		'show_ui'                    => true,
+		'show_admin_column'          => true,
+		'show_in_nav_menus'          => true,
+		'show_tagcloud'              => true,
+	);
+	register_taxonomy( 'organisation', array( 'job' ), $args );
+
+}
+add_action( 'init', 'job_organisation_custom_taxonomy', 0 );
+
 // Register Job Address Custom Taxonomy
 function job_address_custom_taxonomy() {
 

@@ -19,44 +19,6 @@
  include 'inc/cpt-job.php'; 
  include 'inc/custom-taxonomies.php'; 
 
- function fi_import_override()
- {
-
-        $query = get_query_var('feed_importer');
-
-        if($query == 'import'){
-            fi_import();
-        }
-
-        if($query == 'upload-file'){
-            fi_upload_file_to_s3(ABSPATH .'license.txt', 'test/local-test-' . time() . '.txt');
-        }
-
-        if($query == 'delete-file'){
-            $s3client = new Aws\S3\S3Client(['region' => S3_UPLOADS_REGION, 'version' => 'latest']);
-
-            $bucket_name = S3_UPLOADS_BUCKET;
-
-            $result = $s3client->deleteObject([
-                'Bucket' => $bucket_name,
-                'Key' => 'local-test-1690382371.txt'
-            ]);
-
-
-        }
-    
- }
-
-add_action('wp', 'fi_import_override', 1);
-
-function fi_add_query_vars_filter($vars)
-{
-    $vars[] = "feed_importer";
-    return $vars;
-}
-
-add_filter('query_vars', 'fi_add_query_vars_filter');
-
 function fi_import(){
 
     
@@ -99,7 +61,7 @@ function fi_import(){
                 continue;
             }
 
-            if($count >= 10){
+            if($count >= 20){
                 break;
             }
 
@@ -163,59 +125,93 @@ function fi_import(){
                 update_post_meta($post_id, 'job_url', $job_url);
                 update_post_meta($post_id, 'job_closing_date', $closing_date);
 
-                if(array_key_exists('salaryMin', $job) && !empty($job['salaryMin'])){
-                    update_post_meta($post_id, 'job_salary_min', $job['salaryMin']);
-                }
-                else {
-                    delete_post_meta($post_id, 'job_salary_min');
-                }
-
-                if(array_key_exists('salaryMax', $job) && !empty($job['salaryMax'])){
-                    update_post_meta($post_id, 'job_salary_max', $job['salaryMax']);
-                }
-                else {
-                    delete_post_meta($post_id, 'job_salary_max');
-                }
-
-                if(array_key_exists('salaryLondon', $job) && !empty($job['salaryLondon'])){
-                    update_post_meta($post_id, 'job_salary_london', $job['salaryLondon']);
-                }
-                else {
-                    delete_post_meta($post_id, 'job_salary_london');
-                }
-
-                $taxononies = [
+                $fields = [
                     [
-                        'taxSlug' => 'role_type',
-                        'arrayKey' => 'roleTypes'
+                        'type' => 'meta',
+                        'jsonKey' => 'salaryMin',
+                        'metaKey' => 'job_salary_min'
                     ],
                     [
-                        'taxSlug' => 'contract_type',
-                        'arrayKey' => 'contractTypes'
+                        'type' => 'meta',
+                        'jsonKey' => 'salaryMax',
+                        'metaKey' => 'job_salary_max'
                     ],
                     [
-                        'taxSlug' => 'job_address',
-                        'arrayKey' => 'addresses'
+                        'type' => 'meta',
+                        'jsonKey' => 'salaryLondon',
+                        'metaKey' => 'job_salary_london'
                     ],
                     [
-                        'taxSlug' => 'job_city',
-                        'arrayKey' => 'cities'
+                        'type' => 'meta',
+                        'jsonKey' => 'availablePositions',
+                        'metaKey' => 'job_available_positions'
                     ],
                     [
-                        'taxSlug' => 'job_region',
-                        'arrayKey' => 'regions'
+                        'type' => 'tax',
+                        'jsonKey' => 'roleTypes',
+                        'taxKey' => 'role_type'
+                    ],
+                    [
+                        'type' => 'tax',
+                        'jsonKey' => 'contractTypes',
+                        'taxKey' => 'contract_type',
+                    ],
+                    [
+                        'type' => 'tax',
+                        'jsonKey' => 'organisation',
+                        'taxKey' => 'organisation',
+                    ],
+                    [
+                        'type' => 'tax',
+                        'jsonKey' => 'addresses',
+                        'taxKey' => 'job_address',
+                    ],
+                    [
+                        'type' => 'tax',
+                        'jsonKey' => 'cities',
+                        'taxKey' => 'job_city',
+                    ],
+                    [
+                        'type' => 'tax',
+                        'jsonKey' => 'regions',
+                        'taxKey' => 'job_region',
                     ]
                 ];
 
-                foreach($taxononies as $job_tax){
-
-                    if(array_key_exists($job_tax['arrayKey'], $job) && !empty($job[$job_tax['arrayKey']])){
-                        wp_set_object_terms($post_id, $job[$job_tax['arrayKey']], $job_tax['taxSlug']);
+                foreach($fields as $field){
+                
+                    if(!array_key_exists('jsonKey', $field) || !array_key_exists('type', $field) || empty($field['jsonKey']) || empty($field['type'])){
+                        continue;
                     }
-                    else {
-                        wp_set_object_terms($post_id, false, $job_tax['taxSlug']);
-                    }
+                    
+                    $jsonKey = $field['jsonKey'];
 
+                    if($field['type'] == 'meta'){
+
+                        if(!array_key_exists('metaKey', $field) || empty($field['metaKey'])){
+                            continue;
+                        }
+
+                        if(array_key_exists($jsonKey, $job) && !empty($job[$jsonKey])){
+                            update_post_meta($post_id, $field['metaKey'], $job[$jsonKey]);
+                        }
+                        else {
+                            delete_post_meta($post_id, $field['metaKey']);
+                        }
+                    }
+                    else if($field['type'] == 'tax'){
+
+                        if(!array_key_exists('taxKey', $field) || empty($field['taxKey'])){
+                            continue;
+                        }
+
+                        if(array_key_exists($jsonKey, $job) && !empty($job[$jsonKey])){
+                            wp_set_object_terms($post_id, $job[$jsonKey], $field['taxKey']);
+                        }
+                        else {
+                            wp_set_object_terms($post_id, false, $field['taxKey']);
+                        }
+                    }
                 }
             }
 
@@ -223,29 +219,11 @@ function fi_import(){
         }
 
         fi_delete_old_jobs($active_jobs);
+
+        return true;
     }
-}
 
-function fi_upload_file_to_s3($source_file, $dest_file){
-
-    $s3client = new Aws\S3\S3Client(['region' => S3_UPLOADS_REGION, 'version' => 'latest']);
-
-    $bucket_name = S3_UPLOADS_BUCKET;
-
-    $result = [];
-    try {
-        $result = $s3client->putObject([
-            'Bucket' => $bucket_name,
-            'Key' => $dest_file,
-            'SourceFile' => $source_file,
-            'ACL' => 'public-read'
-        ]);
-
-        echo "Uploaded $dest_file to $bucket_name.\n";
-    } catch (Exception $exception) {
-        echo "Failed to upload $dest_file with error: " . $exception->getMessage();
-        exit("Please fix error with file upload before continuing.");
-    }    
+    return false;
 }
 
 // Add the new meta box to side of editor page
@@ -275,12 +253,16 @@ function fi_render_job_metabox($post)
     $closing_date = get_post_meta($post->ID, 'job_closing_date', true);
     $salary_min = get_post_meta($post->ID, 'job_salary_min', true);
     $salary_max = get_post_meta($post->ID, 'job_salary_max', true);
+    $available_positions = get_post_meta($post->ID, 'job_available_positions', true);
 
     echo 'Job ID: ' . $job_id . '<br/>';
     echo 'Job Hash: ' . $job_hash . '<br/>';
     echo 'Job URL: ' . $job_url . '<br/>';
-    date_default_timezone_set('Europe/London');
-    echo 'Closing Date: ' . date('j M Y H:i' , $closing_date) . '<br/>';
+
+    if(!empty($closing_date)){
+        date_default_timezone_set('Europe/London');
+        echo 'Closing Date: ' . date('j M Y H:i' , $closing_date) . '<br/>';
+    }
 
     if(!empty($salary_min)){
         echo 'Salary Min: £' . number_format($salary_min) . '<br/>';
@@ -288,6 +270,10 @@ function fi_render_job_metabox($post)
 
     if(!empty($salary_max)){
         echo 'Salary Max: £' . number_format($salary_max) . '<br/>';
+    }
+
+    if(!empty($available_positions)){
+        echo 'Number of positions available: ' . $available_positions  . '<br/>';
     }
 }
 
