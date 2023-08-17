@@ -33,6 +33,15 @@ function fi_settings_init()
     );
 
     add_settings_field(
+        'max_import_items',
+        __('Max Import Items', 'wordpress'),
+        'fi_input_field_render',
+        'fi_plugin',
+        'fi_settings_section',
+        array( 'field_id'=> 'max_import_items', 'field_hint' => '(leave empty to bring in all items)')
+    );
+
+    add_settings_field(
         'debug_mode',
         __('Debug Mode', 'wordpress'),
         'fi_checkbox_field_render',
@@ -59,6 +68,8 @@ function fi_input_field_render($args)
         ?>
         <input type="text" value="<?= $field_value ?>" name='fi_settings[<?= $args['field_id'] ?>]'>
         <?php
+
+        echo $args['field_hint'];
     }
 }
 

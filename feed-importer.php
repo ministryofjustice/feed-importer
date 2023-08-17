@@ -72,7 +72,9 @@ function fi_import(){
                 continue;
             }
 
-            if($count >= 20){
+            $max_items = fi_get_max_items();
+
+            if($max_items != false && $count >= $max_items){
                 break;
             }
 
@@ -318,6 +320,17 @@ function fi_get_feed_url(){
     }
 
     return $options['feed_url'];
+}
+
+function fi_get_max_items(){
+
+    $options = get_option('fi_settings');
+
+    if (empty($options) || !array_key_exists('max_import_items', $options) || empty($options['max_import_items']) || !is_numeric($options['max_import_items']) ) {
+        return false;
+    }
+
+    return (int) $options['max_import_items'];
 }
 
 function fi_delete_old_jobs($active_jobs){
