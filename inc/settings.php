@@ -130,10 +130,10 @@ function fi_feed_url_field_render($args)
 function fi_plugin_settings()
 {
     if(!empty($_POST) && array_key_exists('feed-importer-action', $_POST) && $_POST['feed-importer-action'] == "import" ){
-       $result = fi_import();
+       $result = fi_trigger_import();
        
        if($result){
-        update_option('fi_last_imported_date', time())
+        
         ?>
             <div id="manual-import-success" class="notice notice-success"> 
 <p><strong>Feed has been imported</strong></p></div>

@@ -19,6 +19,17 @@
  include 'inc/cpt-job.php'; 
  include 'inc/custom-taxonomies.php'; 
 
+ function fi_trigger_import(){
+ 
+    $result = fi_import();
+       
+    if($result){
+        update_option('fi_last_imported_date', time());
+        return true;
+    }
+    return false;
+}
+
 function fi_import(){
 
     
@@ -253,6 +264,7 @@ function fi_render_job_metabox($post)
     $closing_date = get_post_meta($post->ID, 'job_closing_date', true);
     $salary_min = get_post_meta($post->ID, 'job_salary_min', true);
     $salary_max = get_post_meta($post->ID, 'job_salary_max', true);
+    $salary_london = get_post_meta($post->ID, 'job_salary_london', true);
     $available_positions = get_post_meta($post->ID, 'job_available_positions', true);
 
     echo 'Job ID: ' . $job_id . '<br/>';
@@ -270,6 +282,10 @@ function fi_render_job_metabox($post)
 
     if(!empty($salary_max)){
         echo 'Salary Max: £' . number_format($salary_max) . '<br/>';
+    }
+
+    if(!empty($salary_london)){
+        echo 'London Weighting Allowance: £' . number_format($salary_london) . '<br/>';
     }
 
     if(!empty($available_positions)){
@@ -335,7 +351,7 @@ function fi_add_cron_interval($schedules)
     return $schedules;
 }
 
-add_action('fi_import_feeds_cron_hook', 'fi_import');
+add_action('fi_import_feeds_cron_hook', 'fi_trigger_import');
 if (!wp_next_scheduled('fi_import_feeds_cron_hook')) {
     wp_schedule_event(time(), 'fifteen_minutes', 'fi_import_feeds_cron_hook');
 }
