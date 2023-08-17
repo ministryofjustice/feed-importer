@@ -336,6 +336,6 @@ function fi_add_cron_interval($schedules)
 }
 
 add_action('fi_import_feeds_cron_hook', 'fi_import');
-if (!wp_next_scheduled('save_xml_cron_hook')) {
+if (!wp_next_scheduled('fi_import_feeds_cron_hook')) {
     wp_schedule_event(time(), 'fifteen_minutes', 'fi_import_feeds_cron_hook');
 }
