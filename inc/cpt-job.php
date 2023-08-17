@@ -51,6 +51,9 @@ function fi_register_job_post_type()
         'exclude_from_search' => false,
         'publicly_queryable' => false,
         'capability_type' => 'page',
+        'capabilities' => array(
+            'create_posts' => 'do_not_allow'
+        ),
         'rewrite' => array(
             'slug' => 'job',
             'with_front' => false
