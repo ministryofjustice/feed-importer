@@ -1,33 +1,85 @@
 <?php
+/**
+ * Checks if debug mode is active based on the plugin settings.
+ *
+ * @return bool `true` if debug mode is active, `false` otherwise.
+ */
+function feedimporter_is_debug_mode_active(){
 
-add_action('admin_menu', 'fi_settings_page');
-add_action('admin_init', 'fi_settings_init');
 
-function fi_settings_page()
+    $options = get_option('fi_settings');
+
+    if (empty($options) || !array_key_exists('debug_mode', $options)) {
+        return false;
+    }
+
+    if($options['debug_mode'] == 'debug'){
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Retrieves the feed URL from the plugin settings.
+ *
+ * @return string|false The feed URL if found, `false` if not found or empty.
+ */
+function feedimporter_get_feed_url(){
+
+    $options = get_option('fi_settings');
+
+    if (empty($options) || !array_key_exists('feed_url', $options) || empty($options['feed_url'])) {
+        return false;
+    }
+
+    return $options['feed_url'];
+}
+
+/**
+ * Retrieves the maximum number of import items from the plugin settings.
+ *
+ * @return int|false The maximum number of import items if found and valid, `false` otherwise.
+ */
+function feedimporter_get_max_items(){
+
+    $options = get_option('fi_settings');
+
+    if (empty($options) || !array_key_exists('max_import_items', $options) || empty($options['max_import_items']) || !is_numeric($options['max_import_items']) ) {
+        return false;
+    }
+
+    return (int) $options['max_import_items'];
+}
+
+add_action('admin_menu', 'feedimporter_settings_page');
+add_action('admin_init', 'feedimporter_settings_init');
+
+function feedimporter_settings_page()
 {
     add_options_page(
         'Feed Importer',
         'Feed Importer',
         'manage_options',
         'feed-importer',
-        'fi_plugin_settings'
+        'feedimporter_plugin_settings'
     );
 }
 
-function fi_settings_init()
+function feedimporter_settings_init()
 {
     register_setting('fi_plugin', 'fi_settings');
     add_settings_section(
         'fi_settings_section',
         __('Settings', 'wordpress'),
-        'fi_section_intro',
+        'feedimporter_section_intro',
         'fi_plugin'
     );
 
     add_settings_field(
         'feed_url',
         __('Feed URL', 'wordpress'),
-        'fi_feed_url_field_render',
+        'feedimporter_feed_url_field_render',
         'fi_plugin',
         'fi_settings_section'
     );
@@ -35,7 +87,7 @@ function fi_settings_init()
     add_settings_field(
         'max_import_items',
         __('Max Import Items', 'wordpress'),
-        'fi_input_field_render',
+        'feedimporter_input_field_render',
         'fi_plugin',
         'fi_settings_section',
         array( 'field_id'=> 'max_import_items', 'field_hint' => '(leave empty to bring in all items)')
@@ -44,20 +96,19 @@ function fi_settings_init()
     add_settings_field(
         'debug_mode',
         __('Debug Mode', 'wordpress'),
-        'fi_checkbox_field_render',
+        'feedimporter_checkbox_field_render',
         'fi_plugin',
         'fi_settings_section',
         array( 'field_id'=> 'debug_mode', 'field_value' => 'debug')
     );
 }
 
-function fi_section_intro()
+function feedimporter_section_intro()
 {
-
     echo __('Please select the feed you wish to import', 'wordpress');
 }
 
-function fi_input_field_render($args)
+function feedimporter_input_field_render($args)
 {
     if(!empty($args) && array_key_exists('field_id', $args)) {
         $options = get_option('fi_settings');
@@ -73,7 +124,7 @@ function fi_input_field_render($args)
     }
 }
 
-function fi_checkbox_field_render($args)
+function feedimporter_checkbox_field_render($args)
 {
     if(!empty($args) && array_key_exists('field_id', $args) && array_key_exists('field_value', $args)) {
         $options = get_option('fi_settings');
@@ -87,7 +138,7 @@ function fi_checkbox_field_render($args)
     }
 }
 
-function fi_get_feed_options()
+function feedimporter_get_feed_options()
 {
     $options = [];
 
@@ -114,15 +165,11 @@ function fi_get_feed_options()
     return $options;
 }
 
-function fi_feed_url_field_render($args)
+function feedimporter_feed_url_field_render($args)
 {
-    $options = get_option('fi_settings');
-    $field_value = '';
-    if (!empty($options) && array_key_exists('feed_url', $options)) {
-        $field_value = $options['feed_url'];
-    }
+    $field_value = feedimporter_get_feed_url();
 
-    $feed_options = fi_get_feed_options();
+    $feed_options = feedimporter_get_feed_options();
 
     ?>
     <select name='fi_settings[feed_url]'>
@@ -138,10 +185,10 @@ function fi_feed_url_field_render($args)
     
 }
 
-function fi_plugin_settings()
+function feedimporter_plugin_settings()
 {
     if(!empty($_POST) && array_key_exists('feed-importer-action', $_POST) && $_POST['feed-importer-action'] == "import" ){
-       $result = fi_trigger_import();
+       $result = feedimporter_trigger_import();
        
        if($result){
         
