@@ -7,7 +7,7 @@
 function feedimporter_is_debug_mode_active(){
 
 
-    $options = get_option('fi_settings');
+    $options = get_option('feedimporter_settings');
 
     if (empty($options) || !array_key_exists('debug_mode', $options)) {
         return false;
@@ -27,7 +27,7 @@ function feedimporter_is_debug_mode_active(){
  */
 function feedimporter_get_feed_url(){
 
-    $options = get_option('fi_settings');
+    $options = get_option('feedimporter_settings');
 
     if (empty($options) || !array_key_exists('feed_url', $options) || empty($options['feed_url'])) {
         return false;
@@ -43,7 +43,7 @@ function feedimporter_get_feed_url(){
  */
 function feedimporter_get_max_items(){
 
-    $options = get_option('fi_settings');
+    $options = get_option('feedimporter_settings');
 
     if (empty($options) || !array_key_exists('max_import_items', $options) || empty($options['max_import_items']) || !is_numeric($options['max_import_items']) ) {
         return false;
@@ -68,28 +68,28 @@ function feedimporter_settings_page()
 
 function feedimporter_settings_init()
 {
-    register_setting('fi_plugin', 'fi_settings');
+    register_setting('feedimporter_plugin', 'feedimporter_settings');
     add_settings_section(
-        'fi_settings_section',
+        'feedimporter_settings_section',
         __('Settings', 'wordpress'),
         'feedimporter_section_intro',
-        'fi_plugin'
+        'feedimporter_plugin'
     );
 
     add_settings_field(
         'feed_url',
         __('Feed URL', 'wordpress'),
         'feedimporter_feed_url_field_render',
-        'fi_plugin',
-        'fi_settings_section'
+        'feedimporter_plugin',
+        'feedimporter_settings_section'
     );
 
     add_settings_field(
         'max_import_items',
         __('Max Import Items', 'wordpress'),
         'feedimporter_input_field_render',
-        'fi_plugin',
-        'fi_settings_section',
+        'feedimporter_plugin',
+        'feedimporter_settings_section',
         array( 'field_id'=> 'max_import_items', 'field_hint' => '(leave empty to bring in all items)')
     );
 
@@ -97,8 +97,8 @@ function feedimporter_settings_init()
         'debug_mode',
         __('Debug Mode', 'wordpress'),
         'feedimporter_checkbox_field_render',
-        'fi_plugin',
-        'fi_settings_section',
+        'feedimporter_plugin',
+        'feedimporter_settings_section',
         array( 'field_id'=> 'debug_mode', 'field_value' => 'debug')
     );
 }
@@ -111,13 +111,13 @@ function feedimporter_section_intro()
 function feedimporter_input_field_render($args)
 {
     if(!empty($args) && array_key_exists('field_id', $args)) {
-        $options = get_option('fi_settings');
+        $options = get_option('feedimporter_settings');
         $field_value = '';
         if (!empty($options) && array_key_exists($args['field_id'], $options)) {
             $field_value = $options[$args['field_id']];
         }
         ?>
-        <input type="text" value="<?= $field_value ?>" name='fi_settings[<?= $args['field_id'] ?>]'>
+        <input type="text" value="<?= $field_value ?>" name='feedimporter_settings[<?= $args['field_id'] ?>]'>
         <?php
 
         echo $args['field_hint'];
@@ -127,13 +127,13 @@ function feedimporter_input_field_render($args)
 function feedimporter_checkbox_field_render($args)
 {
     if(!empty($args) && array_key_exists('field_id', $args) && array_key_exists('field_value', $args)) {
-        $options = get_option('fi_settings');
+        $options = get_option('feedimporter_settings');
         $field_value = '';
         if (!empty($options) && array_key_exists($args['field_id'], $options)) {
             $field_value = $options[$args['field_id']];
         }
         ?>
-        <input type="checkbox" value="<?= $args['field_value'] ?>" name='fi_settings[<?= $args['field_id'] ?>]' <?php if($field_value == $args['field_value']){ echo 'checked="checked"';}?>>
+        <input type="checkbox" value="<?= $args['field_value'] ?>" name='feedimporter_settings[<?= $args['field_id'] ?>]' <?php if($field_value == $args['field_value']){ echo 'checked="checked"';}?>>
         <?php
     }
 }
@@ -172,7 +172,7 @@ function feedimporter_feed_url_field_render($args)
     $feed_options = feedimporter_get_feed_options();
 
     ?>
-    <select name='fi_settings[feed_url]'>
+    <select name='feedimporter_settings[feed_url]'>
         <option value="">None</option>
 
         <?php foreach($feed_options as $feed_option){ ?>
@@ -201,7 +201,7 @@ function feedimporter_plugin_settings()
 
     $last_imported = "Not Found";
 
-    $last_import_date = get_option('fi_last_imported_date');
+    $last_import_date = get_option('feedimporter_last_imported_date');
 
     if(!empty($last_import_date)){
         date_default_timezone_set('Europe/London');
@@ -219,8 +219,8 @@ function feedimporter_plugin_settings()
     <form action='options.php' method='post'>
         
         <?php
-        settings_fields('fi_plugin');
-        do_settings_sections('fi_plugin');
+        settings_fields('feedimporter_plugin');
+        do_settings_sections('feedimporter_plugin');
         submit_button();
         ?>
 

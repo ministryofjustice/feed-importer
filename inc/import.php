@@ -17,7 +17,7 @@ function feedimporter_trigger_import() {
     }
     
     // Update the last imported date option with the current timestamp
-    update_option('fi_last_imported_date', time());
+    update_option('feedimporter_last_imported_date', time());
     return true;
 }
 
