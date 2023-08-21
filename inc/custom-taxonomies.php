@@ -1,7 +1,7 @@
 <?php
 
 // Register Job Role Type Custom Taxonomy
-function job_role_type_custom_taxonomy() {
+function feedimporter_job_role_type_custom_taxonomy() {
 
 	$labels = array(
 		'name'                       => 'Role Types',
@@ -37,10 +37,10 @@ function job_role_type_custom_taxonomy() {
 	register_taxonomy( 'role_type', array( 'job' ), $args );
 
 }
-add_action( 'init', 'job_role_type_custom_taxonomy', 0 );
+add_action( 'init', 'feedimporter_job_role_type_custom_taxonomy', 0 );
 
 // Register Job Contract Type Custom Taxonomy
-function job_contract_type_custom_taxonomy() {
+function feedimporter_job_contract_type_custom_taxonomy() {
 
 	$labels = array(
 		'name'                       => 'Contract Types',
@@ -76,10 +76,10 @@ function job_contract_type_custom_taxonomy() {
 	register_taxonomy( 'contract_type', array( 'job' ), $args );
 
 }
-add_action( 'init', 'job_contract_type_custom_taxonomy', 0 );
+add_action( 'init', 'feedimporter_job_contract_type_custom_taxonomy', 0 );
 
 // Register Job Organisation Custom Taxonomy
-function job_organisation_custom_taxonomy() {
+function feedimporter_job_organisation_custom_taxonomy() {
 
 	$labels = array(
 		'name'                       => 'Organisations',
@@ -115,10 +115,10 @@ function job_organisation_custom_taxonomy() {
 	register_taxonomy( 'organisation', array( 'job' ), $args );
 
 }
-add_action( 'init', 'job_organisation_custom_taxonomy', 0 );
+add_action( 'init', 'feedimporter_job_organisation_custom_taxonomy', 0 );
 
 // Register Job Address Custom Taxonomy
-function job_address_custom_taxonomy() {
+function feedimporter_job_address_custom_taxonomy() {
 
 	$labels = array(
 		'name'                       => 'Job Addresses',
@@ -154,10 +154,10 @@ function job_address_custom_taxonomy() {
 	register_taxonomy( 'job_address', array( 'job' ), $args );
 
 }
-add_action( 'init', 'job_address_custom_taxonomy', 0 );
+add_action( 'init', 'feedimporter_job_address_custom_taxonomy', 0 );
 
 // Register Job City Custom Taxonomy
-function job_city_custom_taxonomy() {
+function feedimporter_job_city_custom_taxonomy() {
 
 	$labels = array(
 		'name'                       => 'Job Cities',
@@ -193,10 +193,10 @@ function job_city_custom_taxonomy() {
 	register_taxonomy( 'job_city', array( 'job' ), $args );
 
 }
-add_action( 'init', 'job_city_custom_taxonomy', 0 );
+add_action( 'init', 'feedimporter_job_city_custom_taxonomy', 0 );
 
 // Register Job Region Custom Taxonomy
-function job_region_custom_taxonomy() {
+function feedimporter_job_region_custom_taxonomy() {
 
 	$labels = array(
 		'name'                       => 'Job Regions',
@@ -232,4 +232,4 @@ function job_region_custom_taxonomy() {
 	register_taxonomy( 'job_region', array( 'job' ), $args );
 
 }
-add_action( 'init', 'job_region_custom_taxonomy', 0 );
+add_action( 'init', 'feedimporter_job_region_custom_taxonomy', 0 );

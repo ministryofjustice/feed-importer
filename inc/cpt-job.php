@@ -1,6 +1,6 @@
 <?php
 // Register Job Post Type
-function fi_register_job_post_type()
+function feedimporter_register_job_post_type()
 {
 
     $labels = array(
@@ -40,7 +40,7 @@ function fi_register_job_post_type()
         'hierarchical' => false,
         'public' => true,
         'show_ui' => true,
-        'show_in_menu' => fi_is_debug_mode_active(),
+        'show_in_menu' => feedimporter_is_debug_mode_active(),
         'menu_position' => 5,
         'menu_icon' => 'dashicons-portfolio',
         'show_in_admin_bar' => true,
@@ -64,6 +64,6 @@ function fi_register_job_post_type()
 
 }
 
-add_action('init', 'fi_register_job_post_type', 0);
+add_action('init', 'feedimporter_register_job_post_type', 0);
 
 
