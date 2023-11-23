@@ -9,4 +9,4 @@ ______            _   _____                           _
                                     |_|          
 ```  
 # Feed Importer
-Wordpress Plugin that parses feed into Wordpress DB.
+Wordpress Plugin that parses feed into Wordpress DB..
