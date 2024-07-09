@@ -233,3 +233,120 @@ function feedimporter_job_region_custom_taxonomy() {
 
 }
 add_action( 'init', 'feedimporter_job_region_custom_taxonomy', 0 );
+
+// Register Prison Custom Taxonomy
+function feedimporter_prison_custom_taxonomy() {
+
+	$labels = array(
+		'name'                       => 'Prisons',
+		'singular_name'              => 'Prison',
+		'menu_name'                  => 'Prisons',
+		'all_items'                  => 'All Prisons',
+		'parent_item'                => 'Parent Prison',
+		'parent_item_colon'          => 'Parent Prison:',
+		'new_item_name'              => 'New Prison Name',
+		'add_new_item'               => 'Add New Prison',
+		'edit_item'                  => 'Edit Prison',
+		'update_item'                => 'Update Prison',
+		'view_item'                  => 'View Prison',
+		'separate_items_with_commas' => 'Separate prisons with commas',
+		'add_or_remove_items'        => 'Add or remove prisons',
+		'choose_from_most_used'      => 'Choose from the most used',
+		'popular_items'              => 'Popular Prisons',
+		'search_items'               => 'Search Prisons',
+		'not_found'                  => 'Not Found',
+		'no_terms'                   => 'No Prisons',
+		'items_list'                 => 'Prisons list',
+		'items_list_navigation'      => 'Prisons list navigation',
+	);
+	$args = array(
+		'labels'                     => $labels,
+		'hierarchical'               => true,
+		'public'                     => true,
+		'show_ui'                    => true,
+		'show_admin_column'          => true,
+		'show_in_nav_menus'          => true,
+		'show_tagcloud'              => true,
+	);
+	register_taxonomy( 'job_prison', array( 'job' ), $args );
+
+}
+add_action( 'init', 'feedimporter_prison_custom_taxonomy', 0 );
+
+// Register Prison Type Custom Taxonomy
+function feedimporter_prison_type_custom_taxonomy() {
+
+	$labels = array(
+		'name'                       => 'Prison Types',
+		'singular_name'              => 'Prison Type',
+		'menu_name'                  => 'Prison Types',
+		'all_items'                  => 'All Prison Types',
+		'parent_item'                => 'Parent Prison Type',
+		'parent_item_colon'          => 'Parent Prison Type:',
+		'new_item_name'              => 'New Prison Type Name',
+		'add_new_item'               => 'Add New Prison Type',
+		'edit_item'                  => 'Edit Prison Type',
+		'update_item'                => 'Update Prison Type',
+		'view_item'                  => 'View Prison Type',
+		'separate_items_with_commas' => 'Separate prisons types with commas',
+		'add_or_remove_items'        => 'Add or remove prison types',
+		'choose_from_most_used'      => 'Choose from the most used',
+		'popular_items'              => 'Popular Prison Types',
+		'search_items'               => 'Search Prison Types',
+		'not_found'                  => 'Not Found',
+		'no_terms'                   => 'No Prison Types',
+		'items_list'                 => 'Prison Types list',
+		'items_list_navigation'      => 'Prison Types list navigation',
+	);
+	$args = array(
+		'labels'                     => $labels,
+		'hierarchical'               => true,
+		'public'                     => true,
+		'show_ui'                    => true,
+		'show_admin_column'          => true,
+		'show_in_nav_menus'          => true,
+		'show_tagcloud'              => true,
+	);
+	register_taxonomy( 'job_prison_type', array( 'job' ), $args );
+
+}
+add_action( 'init', 'feedimporter_prison_type_custom_taxonomy', 0 );
+
+// Register Prison Category Custom Taxonomy
+function feedimporter_prison_category_custom_taxonomy() {
+
+	$labels = array(
+		'name'                       => 'Prison Categories',
+		'singular_name'              => 'Prison Category',
+		'menu_name'                  => 'Prison Categories',
+		'all_items'                  => 'All Prison Categories',
+		'parent_item'                => 'Parent Prison Category',
+		'parent_item_colon'          => 'Parent Prison Category:',
+		'new_item_name'              => 'New Prison Category Name',
+		'add_new_item'               => 'Add New Prison Category',
+		'edit_item'                  => 'Edit Prison Category',
+		'update_item'                => 'Update Prison Category',
+		'view_item'                  => 'View Prison Category',
+		'separate_items_with_commas' => 'Separate prisons categories with commas',
+		'add_or_remove_items'        => 'Add or remove prison categories',
+		'choose_from_most_used'      => 'Choose from the most used',
+		'popular_items'              => 'Popular Prison Categories',
+		'search_items'               => 'Search Prison Categories',
+		'not_found'                  => 'Not Found',
+		'no_terms'                   => 'No Prison Categories',
+		'items_list'                 => 'Prison Categories list',
+		'items_list_navigation'      => 'Prison Categories list navigation',
+	);
+	$args = array(
+		'labels'                     => $labels,
+		'hierarchical'               => true,
+		'public'                     => true,
+		'show_ui'                    => true,
+		'show_admin_column'          => true,
+		'show_in_nav_menus'          => true,
+		'show_tagcloud'              => true,
+	);
+	register_taxonomy( 'job_prison_category', array( 'job' ), $args );
+
+}
+add_action( 'init', 'feedimporter_prison_category_custom_taxonomy', 0 );

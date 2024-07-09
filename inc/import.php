@@ -73,16 +73,29 @@ function feedimporter_fetch_feed_data() {
         return false;
     }
 
-    // Fetch data from the feed URL
-    $response = wp_remote_get($url);
+    if (getenv('WP_ENVIRONMENT_TYPE') == 'local') {
+        $upload_dir = wp_upload_dir();
 
-    // Check for WP Error during the HTTP request
-    if (is_wp_error($response)) {
-        return false;
+        $feed_file = $upload_dir['basedir'] . '/feed-parser/' . $url;
+
+        $json = file_get_contents($feed_file);
+
+        if(!$json){
+            return false;
+        }
     }
+    else {
+        // Fetch data from the feed URL
+        $response = wp_remote_get($url);
 
-    // Extract JSON body from the response
-    $json = $response['body'];
+        // Check for WP Error during the HTTP request
+        if (is_wp_error($response)) {
+            return false;
+        }
+
+        // Extract JSON body from the response
+        $json = $response['body'];
+    }
 
     // Decode JSON into an associative array
     $dataArray = json_decode($json, true);
@@ -347,6 +360,11 @@ function feedimporter_update_job_details($jobPostID, $job){
         ],
         [
             'type' => 'meta',
+            'jsonKey' => 'salaryLondonWeighting',
+            'metaKey' => 'job_salary_london'
+        ],
+        [
+            'type' => 'meta',
             'jsonKey' => 'availablePositions',
             'metaKey' => 'job_available_positions'
         ],
@@ -379,6 +397,21 @@ function feedimporter_update_job_details($jobPostID, $job){
             'type' => 'tax',
             'jsonKey' => 'regions',
             'taxKey' => 'job_region',
+        ],
+        [
+            'type' => 'tax',
+            'jsonKey' => 'prisonNames',
+            'taxKey' => 'job_prison',
+        ],
+        [
+            'type' => 'tax',
+            'jsonKey' => 'prisonTypes',
+            'taxKey' => 'job_prison_type',
+        ],
+        [
+            'type' => 'tax',
+            'jsonKey' => 'prisonCategory',
+            'taxKey' => 'job_prison_category',
         ]
     ];
 

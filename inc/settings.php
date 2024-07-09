@@ -142,25 +142,44 @@ function feedimporter_get_feed_options()
 {
     $options = [];
 
-    if(!defined('S3_UPLOADS_BUCKET') || !defined('S3_UPLOADS_REGION')){
-        return $options;
+
+    if (getenv('WP_ENVIRONMENT_TYPE') == 'local') {
+        $upload_dir = wp_upload_dir();
+
+       
+        $feeds_file = $upload_dir['basedir'] . '/feed-parser/feeds.json';
+
+        $json = file_get_contents($feeds_file);
+
+        if(!$json){
+            return $options;
+        }
+    }
+    else {
+        if(!defined('S3_UPLOADS_BUCKET') || !defined('S3_UPLOADS_REGION')){
+            return $options;
+        }
+        
+
+        //use bucket secrets to create url 
+        $feeds_url = "https://" . S3_UPLOADS_BUCKET . ".s3." . S3_UPLOADS_REGION . ".amazonaws.com/feed-parser/feeds.json";
+
+        $response = wp_remote_get($feeds_url);
+
+        if (is_wp_error($response)) {
+            return $options;
+        }
+    
+        $json = $response['body'];
+
     }
 
-    //use bucket secrets to create url 
-    $url = "https://" . S3_UPLOADS_BUCKET . ".s3." . S3_UPLOADS_REGION . ".amazonaws.com/feed-parser/feeds.json";
-
-    $response = wp_remote_get($url);
-
-    if (is_wp_error($response)) {
-        return $options;
-    }
-
-    $json = $response['body'];
     $data_array = json_decode($json, true);
 
     if(is_array($data_array)){
         $options = $data_array;
     }
+    
 
     return $options;
 }
