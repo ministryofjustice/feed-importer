@@ -101,7 +101,7 @@ function feedimporter_fetch_feed_data($feed_url) {
     }
     else {
         // Fetch data from the feed URL
-        $response = wp_remote_get($url);
+        $response = wp_remote_get($feed_url);
 
         // Check for WP Error during the HTTP request
         if (is_wp_error($response)) {
