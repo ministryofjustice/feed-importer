@@ -29,7 +29,7 @@ function feedimporter_get_import_feeds(){
 
     $options = get_option('feedimporter_settings');
 
-    if (empty($options) || !array_key_exists('feed_url', $options) || empty($options['feed_url'])) {
+    if (empty($options) || !array_key_exists('feed_url', $options) || !is_array($options['feed_url']) || empty($options['feed_url'])) {
         return array();
     }
 
