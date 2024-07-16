@@ -25,12 +25,12 @@ function feedimporter_is_debug_mode_active(){
  *
  * @return string|false The feed URL if found, `false` if not found or empty.
  */
-function feedimporter_get_feed_url(){
+function feedimporter_get_import_feeds(){
 
     $options = get_option('feedimporter_settings');
 
     if (empty($options) || !array_key_exists('feed_url', $options) || empty($options['feed_url'])) {
-        return false;
+        return array();
     }
 
     return $options['feed_url'];
@@ -186,20 +186,17 @@ function feedimporter_get_feed_options()
 
 function feedimporter_feed_url_field_render($args)
 {
-    $field_value = feedimporter_get_feed_url();
+    $selected_feeds = feedimporter_get_import_feeds();
 
     $feed_options = feedimporter_get_feed_options();
-
-    ?>
-    <select name='feedimporter_settings[feed_url]'>
-        <option value="">None</option>
-
-        <?php foreach($feed_options as $feed_option){ ?>
-            <option value="<?php echo $feed_option['url'];?>" <?php if($field_value == $feed_option['url']){ echo 'selected="selected"';}?>><?php echo $feed_option['name'];?></option>
+    
+    $feed_count = 1;
+    foreach($feed_options as $feed_option){ ?>
+            <input type="checkbox" id="feed-<?php echo $feed_count;?>" name='feedimporter_settings[feed_url][]' value="<?php echo $feed_option['url'];?>" <?php if(in_array($feed_option['url'], $selected_feeds)){ echo 'checked="checked"';}?>/><?php echo $feed_option['name'];?><br/><br/>
         <?php
+            $feed_count++;
         }
         ?>
-    </select>
     <?php
     
 }

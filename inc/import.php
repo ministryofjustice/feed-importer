@@ -22,7 +22,7 @@ function feedimporter_trigger_import() {
 }
 
 /**
- * Imports data from the fetched feed and initiates the appropriate import process.
+ * Imports data from selected feeds and initiates the appropriate import process.
  *
  * This function fetches feed data using the `feedimporter_fetch_feed_data` function and
  * processes the imported data based on the object type specified in the feed.
@@ -31,28 +31,44 @@ function feedimporter_trigger_import() {
  */
 function feedimporter_import(){
 
-    $feedDataArray = feedimporter_fetch_feed_data();
+    // Get the feeds
+    $feeds = feedimporter_get_import_feeds();
 
-    if(!$feedDataArray || !is_array($feedDataArray) || !array_key_exists('objectType', $feedDataArray)){
-        return false;
-    }
+    $activeJobs = [];
+    $result = true;
 
-    if(!array_key_exists('objects', $feedDataArray) || empty($feedDataArray['objects'])){
-        return false;
-    }
+    foreach($feeds as $feed_url){
 
-    if($feedDataArray['objectType'] == 'job'){
-        
-        $importResult = feedimporter_import_jobs($feedDataArray['objects']);
+        $feedDataArray = feedimporter_fetch_feed_data($feed_url);
 
-        if(!$importResult){
-            return false;
+        if(!$feedDataArray || !is_array($feedDataArray) || !array_key_exists('objectType', $feedDataArray)){
+            $result = false;
+            continue;
         }
 
-        return true;
+        if(!array_key_exists('objects', $feedDataArray) || empty($feedDataArray['objects'])){
+            $result = false;
+            continue;
+        }
+
+        if($feedDataArray['objectType'] != 'job'){
+            $result = false;
+        }
+
+        $importResult = feedimporter_import_jobs($feedDataArray['objects'], $activeJobs);
+
+        if(!$importResult['result']){
+            $result = false;
+            continue;
+        }
+    
+        $activeJobs = $importResult['activeJobs'];
+    
     }
 
-    return false;
+    feedimporter_delete_old_jobs($activeJobs);
+
+    return $result;
 }
 
 /**
@@ -61,22 +77,21 @@ function feedimporter_import(){
  * This function fetches data from the provided feed URL, decodes the JSON response, 
  * and returns the data as an associative array.
  *
+ * @param string $feed_url URL to import data from
+ * 
  * @return array|false An associative array containing the fetched feed data on success,
  *                    or `false` if any errors occur during the fetching and decoding process.
  */
-function feedimporter_fetch_feed_data() {
-    // Get the feed URL
-    $url = feedimporter_get_feed_url();
-
+function feedimporter_fetch_feed_data($feed_url) {
     // Check if the feed URL is available
-    if (!$url) {
+    if (!$feed_url) {
         return false;
     }
 
     if (getenv('WP_ENVIRONMENT_TYPE') == 'local') {
         $upload_dir = wp_upload_dir();
 
-        $feed_file = $upload_dir['basedir'] . '/feed-parser/' . $url;
+        $feed_file = $upload_dir['basedir'] . '/feed-parser/' . $feed_url;
 
         $json = file_get_contents($feed_file);
 
@@ -118,11 +133,12 @@ function feedimporter_fetch_feed_data() {
  * Any old jobs not present in the active jobs list will be deleted using `feedimporter_delete_old_jobs`.
  *
  * @param array $jobsArray An array containing job data to import.
+ * @param array $activeJobs An array of current active jobs.
  *
  * @return bool `true` if the import process was completed successfully, `false` otherwise.
  */
-function feedimporter_import_jobs($jobsArray) {
-    $activeJobs = [];
+function feedimporter_import_jobs($jobsArray, $activeJobs) {
+    
     $maxItems = feedimporter_get_max_items();
 
     $count = 0;
@@ -141,10 +157,7 @@ function feedimporter_import_jobs($jobsArray) {
         $count++;
     }
 
-    //Do we need check here 
-    feedimporter_delete_old_jobs($activeJobs);
-
-    return true;
+    return array('result' => true, 'activeJobs' => $activeJobs);
 }
 
 /**
