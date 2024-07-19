@@ -25,12 +25,12 @@ function feedimporter_is_debug_mode_active(){
  *
  * @return string|false The feed URL if found, `false` if not found or empty.
  */
-function feedimporter_get_feed_url(){
+function feedimporter_get_import_feeds(){
 
     $options = get_option('feedimporter_settings');
 
-    if (empty($options) || !array_key_exists('feed_url', $options) || empty($options['feed_url'])) {
-        return false;
+    if (empty($options) || !array_key_exists('feed_url', $options) || !is_array($options['feed_url']) || empty($options['feed_url'])) {
+        return array();
     }
 
     return $options['feed_url'];
@@ -142,45 +142,61 @@ function feedimporter_get_feed_options()
 {
     $options = [];
 
-    if(!defined('S3_UPLOADS_BUCKET') || !defined('S3_UPLOADS_REGION')){
-        return $options;
+
+    if (getenv('WP_ENVIRONMENT_TYPE') == 'local') {
+        $upload_dir = wp_upload_dir();
+
+       
+        $feeds_file = $upload_dir['basedir'] . '/feed-parser/feeds.json';
+
+        $json = file_get_contents($feeds_file);
+
+        if(!$json){
+            return $options;
+        }
+    }
+    else {
+        if(!defined('S3_UPLOADS_BUCKET') || !defined('S3_UPLOADS_REGION')){
+            return $options;
+        }
+        
+
+        //use bucket secrets to create url 
+        $feeds_url = "https://" . S3_UPLOADS_BUCKET . ".s3." . S3_UPLOADS_REGION . ".amazonaws.com/feed-parser/feeds.json";
+
+        $response = wp_remote_get($feeds_url);
+
+        if (is_wp_error($response)) {
+            return $options;
+        }
+    
+        $json = $response['body'];
+
     }
 
-    //use bucket secrets to create url 
-    $url = "https://" . S3_UPLOADS_BUCKET . ".s3." . S3_UPLOADS_REGION . ".amazonaws.com/feed-parser/feeds.json";
-
-    $response = wp_remote_get($url);
-
-    if (is_wp_error($response)) {
-        return $options;
-    }
-
-    $json = $response['body'];
     $data_array = json_decode($json, true);
 
     if(is_array($data_array)){
         $options = $data_array;
     }
+    
 
     return $options;
 }
 
 function feedimporter_feed_url_field_render($args)
 {
-    $field_value = feedimporter_get_feed_url();
+    $selected_feeds = feedimporter_get_import_feeds();
 
     $feed_options = feedimporter_get_feed_options();
-
-    ?>
-    <select name='feedimporter_settings[feed_url]'>
-        <option value="">None</option>
-
-        <?php foreach($feed_options as $feed_option){ ?>
-            <option value="<?php echo $feed_option['url'];?>" <?php if($field_value == $feed_option['url']){ echo 'selected="selected"';}?>><?php echo $feed_option['name'];?></option>
+    
+    $feed_count = 1;
+    foreach($feed_options as $feed_option){ ?>
+            <input type="checkbox" id="feed-<?php echo $feed_count;?>" name='feedimporter_settings[feed_url][]' value="<?php echo $feed_option['url'];?>" <?php if(in_array($feed_option['url'], $selected_feeds)){ echo 'checked="checked"';}?>/><label for="feed-<?php echo $feed_count;?>"><?php echo $feed_option['name'];?></label><br/><br/>
         <?php
+            $feed_count++;
         }
         ?>
-    </select>
     <?php
     
 }
