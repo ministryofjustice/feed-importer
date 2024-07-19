@@ -192,7 +192,7 @@ function feedimporter_feed_url_field_render($args)
     
     $feed_count = 1;
     foreach($feed_options as $feed_option){ ?>
-            <input type="checkbox" id="feed-<?php echo $feed_count;?>" name='feedimporter_settings[feed_url][]' value="<?php echo $feed_option['url'];?>" <?php if(in_array($feed_option['url'], $selected_feeds)){ echo 'checked="checked"';}?>/><?php echo $feed_option['name'];?><br/><br/>
+            <input type="checkbox" id="feed-<?php echo $feed_count;?>" name='feedimporter_settings[feed_url][]' value="<?php echo $feed_option['url'];?>" <?php if(in_array($feed_option['url'], $selected_feeds)){ echo 'checked="checked"';}?>/><label for="feed-<?php echo $feed_count;?>"><?php echo $feed_option['name'];?></label><br/><br/>
         <?php
             $feed_count++;
         }
