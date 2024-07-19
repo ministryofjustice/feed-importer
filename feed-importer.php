@@ -4,7 +4,7 @@
  * Plugin name: Feed Importer
  * Plugin URI:  https://github.com/ministryofjustice/feed-importer
  * Description: Imports a JSON data feed into Wordpress
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Ministry of Justice - Adam Brown, Malcolm Butler & Robert Lowe
  * Text domain: feed-importer
  * Author URI:  https://github.com/ministryofjustice
